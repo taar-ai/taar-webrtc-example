@@ -46,7 +46,7 @@ export const Main = () => {
       { agentId: registeredNumber, nonce },
       {
         headers: {
-          Authorization: "<your-token>",
+          Authorization: "c3f9a8d2e4a74b68917a7b10dfe6b94fba28c5de7c2c4f47a89e3b9c2fd8c5ea",
           "Content-Type": "application/json",
         },
       }
