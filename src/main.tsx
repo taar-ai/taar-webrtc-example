@@ -18,9 +18,12 @@ export const Main = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const client = useRef<TaarWebRTC | null>(null);
 
+  const prefix = localStorage.getItem("taarprefix") ?? "localhost:9000";
+
   useEffect(() => {
     client.current = new TaarWebRTC({
       debug: true,
+      prefix: prefix,
       onReady: (nonce) => {
         setNonce(nonce);
         setStatus("Ready");
@@ -37,12 +40,22 @@ export const Main = () => {
         setStatus("Error");
       },
     });
+
+    client.current.onMessage('call.completed', (data) => {
+      console.log("Call Completed1 Params: ", data)
+    });
+
+    client.current.onMessage('register.notice', (data) => {
+      console.log("Register Notice: ", data)
+    })
+
   }, []);
+  
 
   const handleRegister = async () => {
     if (!nonce || !registeredNumber) return;
     const res = await axios.post(
-      "https://api.taar.ai/agent/ext/register",
+      `${prefix}/agent/ext/register`,
       { agentId: registeredNumber, nonce },
       {
         headers: {
@@ -73,11 +86,26 @@ export const Main = () => {
     shouldMute ? client.current?.mute() : client.current?.unmute();
   };
 
+  const setPrefixOverride = (prefix: string) => {
+    localStorage.setItem('taarprefix', prefix)
+  }
+
   return (
     <div className="container">
       <div className="card">
         <h2>Taar.AI WebRTC Agent</h2>
         <div className="status">● {status}</div>
+
+        <div className="section">
+          <label>Override Prefix</label>
+          <div className="input-row">
+            <input
+              type="text"
+              onChange={(e) => setPrefixOverride(e.target.value)}
+              placeholder={prefix}
+            />
+          </div>
+        </div>
 
         <div className="section">
           <label>Agent ID to Register</label>
